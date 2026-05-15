@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSV Parser</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif}
+body{background:#f8fafc;min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px}
+.card{background:white;padding:20px;border-radius:12px;box-shadow:0 8px 25px rgba(0,0,0,0.1);width:100%;max-width:500px}
+h2{text-align:center;margin-bottom:15px;color:#0f172a}
+textarea{width:100%;height:80px;padding:10px;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:10px;font-family:monospace;font-size:13px;resize:none}
+table{width:100%;border-collapse:collapse;margin-bottom:10px}
+th,td{padding:8px;border-bottom:1px solid #e2e8f0;text-align:left;font-size:13px}
+th{background:#f8fafc;color:#475569}
+.btns{display:flex;gap:8px}
+button{flex:1;padding:8px;border:none;border-radius:6px;cursor:pointer;color:white;font-size:13px}
+.csv{background:#3b82f6}.json{background:#10b981}.html{background:#f59e0b}
+</style>
+</head>
+<body>
+<div class="card">
+  <h2>📊 CSV Parser</h2>
+  <textarea id="csv" placeholder="Ism,Yosh,Shahar\nAli,25,Toshkent\nVali,30,Samarqand"></textarea>
+  <div style="overflow-x:auto"><table id="tbl"></table></div>
+  <div class="btns">
+    <button class="csv" onclick="parse()">🔄 Parse</button>
+    <button class="json" onclick="export('json')">📤 JSON</button>
+    <button class="html" onclick="export('html')">📤 HTML</button>
+  </div>
+</div>
+<script>
+let data=[];
+function parse(){
+  const lines=document.getElementById('csv').value.trim().split('\n').map(l=>l.split(','));
+  if(lines.length<2)return;
+  const headers=lines[0];
+  data=lines.slice(1).map(r=>{const o={};headers.forEach((h,i)=>o[h]=r[i]||'');return o});
+  document.getElementById('tbl').innerHTML=`<tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr>`+data.map(r=>`<tr>${headers.map(h=>`<td>${r[h]}</td>`).join('')}</tr>`).join('');
+}
+function export(type){
+  if(data.length===0)return alert("Avval CSV parse qiling!");
+  let blob,typeStr,name;
+  if(type==='json'){blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});name='data.json'}
+  else{blob=new Blob([document.getElementById('tbl').outerHTML],{type:'text/html'});name='table.html'}
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();
+}
+</script>
+</body>
+</html>
